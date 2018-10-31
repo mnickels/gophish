@@ -48,14 +48,38 @@ function dismiss() {
     $("#modal").modal('hide')
 }
 
-function deletePage(idx) {
-    if (confirm("Delete " + pages[idx].name + "?")) {
-        api.pageId.delete(pages[idx].id)
-            .success(function (data) {
-                successFlash(data.message)
-                load()
+var deletePage = function (idx) {
+    swal({
+        title: "Are you sure?",
+        text: "This will delete the landing page. This can't be undone!",
+        type: "warning",
+        animation: false,
+        showCancelButton: true,
+        confirmButtonText: "Delete " + escapeHtml(pages[idx].name),
+        confirmButtonColor: "#428bca",
+        reverseButtons: true,
+        allowOutsideClick: false,
+        preConfirm: function () {
+            return new Promise(function (resolve, reject) {
+                api.pageId.delete(pages[idx].id)
+                    .success(function (msg) {
+                        resolve()
+                    })
+                    .error(function (data) {
+                        reject(data.responseJSON.message)
+                    })
             })
-    }
+        }
+    }).then(function () {
+        swal(
+            'Landing Page Deleted!',
+            'This landing page has been deleted!',
+            'success'
+        );
+        $('button:contains("OK")').on('click', function () {
+            location.reload()
+        })
+    })
 }
 
 function importSite() {
@@ -68,7 +92,6 @@ function importSite() {
                 include_resources: false
             })
             .success(function (data) {
-                console.log($("#html_editor"))
                 $("#html_editor").val(data.html)
                 CKEDITOR.instances["html_editor"].setMode('wysiwyg')
                 $("#importSiteModal").modal("hide")
@@ -134,7 +157,7 @@ function load() {
                     pagesTable.row.add([
                         escapeHtml(page.name),
                         moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
-                        "<div class='pull-right'><span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
+                        "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\
 		    <span data-toggle='modal' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Copy Page' onclick='copy(" + i + ")'>\

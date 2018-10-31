@@ -34,34 +34,10 @@ func (t *Template) Validate() error {
 	case t.Text == "" && t.HTML == "":
 		return ErrTemplateMissingParameter
 	}
-	// Test that the variables used in the template
-	// validate with no issues
-	td := struct {
-		Result
-		URL         string
-		TrackingURL string
-		Tracker     string
-		From        string
-	}{
-		Result{
-			BaseRecipient: BaseRecipient{
-				Email:     "foo@bar.com",
-				FirstName: "Foo",
-				LastName:  "Bar",
-				Position:  "Test",
-			},
-		},
-		"http://foo.bar",
-		"http://foo.bar/track",
-		"<img src='http://foo.bar/track",
-		"John Doe <foo@bar.com>",
-	}
-	_, err := ExecuteTemplate(t.HTML, td)
-	if err != nil {
+	if err = ValidateTemplate(t.HTML); err != nil {
 		return err
 	}
-	_, err = ExecuteTemplate(t.Text, td)
-	if err != nil {
+	if err = ValidateTemplate(t.Text); err != nil {
 		return err
 	}
 	return nil

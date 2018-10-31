@@ -358,17 +358,19 @@ var renderDevice = function (event_details) {
 
 function renderTimeline(data) {
     record = {
+        "id": data[0],
         "first_name": data[2],
         "last_name": data[3],
         "email": data[4],
         "position": data[5],
         "status": data[6],
-        "send_date": data[7],
-        "reported": data[8]
+        "reported": data[7],
+        "send_date": data[8]
     }
     results = '<div class="timeline col-sm-12 well well-lg">' +
         '<h6>Timeline for ' + escapeHtml(record.first_name) + ' ' + escapeHtml(record.last_name) +
-        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) + '</span>' +
+        '</h6><span class="subtitle">Email: ' + escapeHtml(record.email) +
+        '<br>Result ID: ' + escapeHtml(record.id) + '</span>' +
         '<div class="timeline-graph col-sm-6">'
     $.each(campaign.timeline, function (i, event) {
         if (!event.email || event.email == record.email) {
@@ -773,11 +775,13 @@ function load() {
                         {
                             className: "text-center",
                             "render": function (reported, type, row) {
-                                if (reported) {
-                                    return "<i class='fa fa-check-circle text-center text-success'></i>"
-                                } else {
+                                if (type == "display") {
+                                    if (reported) {
+                                        return "<i class='fa fa-check-circle text-center text-success'></i>"
+                                    }
                                     return "<i class='fa fa-times-circle text-center text-muted'></i>"
                                 }
+                                return reported
                             },
                             "targets": [7]
                         }
